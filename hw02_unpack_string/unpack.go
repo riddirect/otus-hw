@@ -2,6 +2,7 @@ package hw02unpackstring
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"unicode"
@@ -16,23 +17,26 @@ var (
 func Unpack(s string) (string, error) {
 	var b strings.Builder
 	var lastChar rune
-	var digit int
 
 	sc := func(r rune) bool {
 		return r < 'A' || r > 'z'
 	}
 
 	for i, val := range s {
-		b.WriteString(string(val))
+		if !(unicode.IsDigit(val)) {
+			b.WriteString(string(val))
+		}
 
 		if unicode.IsDigit(val) {
 			if i == 0 || unicode.IsDigit(lastChar) {
 				return "", ErrInvalidString
 			}
 
-			removeLastChar(&b)
+			digit, err := strconv.Atoi(string(val))
+			if err != nil {
+				fmt.Println("syntax error")
+			}
 
-			digit, _ = strconv.Atoi(string(val))
 			if digit == 0 {
 				removeLastChar(&b)
 			} else {
