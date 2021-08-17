@@ -43,3 +43,25 @@ func TestUnpackInvalidString(t *testing.T) {
 		})
 	}
 }
+
+func TestUnpackSpecialChar(t *testing.T) {
+	specialChar := []string{"абв", "a%bc"}
+	for _, tc := range specialChar {
+		tc := tc
+		t.Run(tc, func(t *testing.T) {
+			_, err := Unpack(tc)
+			require.Truef(t, errors.Is(err, ErrSpecChar), "actual error %q", err)
+		})
+	}
+}
+
+func TestUnpackUppercaseChar(t *testing.T) {
+	uppercaseChar := []string{"ABC", "aBc"}
+	for _, tc := range uppercaseChar {
+		tc := tc
+		t.Run(tc, func(t *testing.T) {
+			_, err := Unpack(tc)
+			require.Truef(t, errors.Is(err, ErrUppercaseChar), "actual error %q", err)
+		})
+	}
+}
