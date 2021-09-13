@@ -68,3 +68,37 @@ func TestRun(t *testing.T) {
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
 	})
 }
+
+func TestRunInvalidValue(t *testing.T) {
+	tests := []struct {
+		name                   string
+		tasks, workers, errors int
+		err                    error
+	}{
+		{name: "negative or zero value of errors", tasks: 15, workers: 10, errors: 0, err: ErrErrorsUnexpectedCount},
+		{name: "negative or zero value of workers", tasks: 15, workers: 0, errors: 5, err: ErrWorkersUnexpectedCount},
+		{name: "tasks are empty", tasks: 0, workers: 10, errors: 5, err: ErrTasksEmpty},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			CheckInvalidValue(t, tt.tasks, tt.workers, tt.errors, tt.err)
+		})
+	}
+}
+
+func CheckInvalidValue(t testing.TB, tt, n, m int, errOutput error) {
+	t.Helper()
+	tasks := make([]Task, 0, tt)
+
+	for i := 0; i < tt; i++ {
+		tasks = append(tasks, func() error {
+			return nil
+		})
+	}
+
+	err := Run(tasks, n, m)
+
+	require.Truef(t, errors.Is(err, errOutput), "actual err - %v", err)
+}
